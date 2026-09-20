@@ -1,0 +1,12 @@
+{
+  "projectId": "analis-parlay-app",
+  "appId": "1:338514454045:web:122f8e47be39edc155c8f4",
+  "apiKey": "AIzaSyAAUFNIaaYSBtSwKSIQ0YI_xVr9EdEFfoU",
+  "authDomain": "analis-parlay-app.firebaseapp.com",
+  "firestoreDatabaseId": "(default)",
+  "storageBucket": "analis-parlay-app.firebasestorage.app",
+  "messagingSenderId": "338514454045",
+  "measurementId": "G-WE1WNFPLYP",
+  "oAuthClientId": "",
+  "recaptchaSiteKey": ""
+}
