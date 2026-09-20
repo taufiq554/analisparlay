@@ -1,0 +1,65 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && (
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin') ||
+        request.auth.token.email == 'nandegg55@gmail.com'
+      );
+    }
+
+    // Users collection
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // User can create their initial profile upon registration
+      allow create: if isOwner(userId) && 
+        (!request.resource.data.keys().hasAny(['role']) || request.resource.data.role == 'user' || isAdmin());
+      
+      // User can update their own profile info or increment analysisUsed, but cannot escalate role or grant themselves ungranted plans
+      allow update: if isAdmin() || (
+        isOwner(userId) &&
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'subscriptionStatus', 'subscriptionPlan', 'analysisLimit', 'subscriptionStart', 'subscriptionEnd'])
+      );
+      
+      allow delete: if isAdmin();
+    }
+
+    // Plans collection - readable by all users, modifiable only by admin
+    match /plans/{planId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Analyses collection
+    match /analyses/{analysisId} {
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+    }
+
+    // Payment tickets collection (Solusi 1 + C: User submit, Admin approve/reject)
+    match /payment_tickets/{ticketId} {
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // Admin audit logs collection
+    match /admin_audit_logs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin();
+      allow update, delete: if false; // Immutable audit log
+    }
+  }
+}
