@@ -1,7 +1,0 @@
-{
-  "name": "MAX AI ANALIS PARLAY",
-  "description": "AI Sports Analysis & Parlay Assistant premium SaaS untuk analisis pertandingan olahraga dan kalkulasi parlay berbasis data nyata dan OCR jadwal pertandingan.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
-
